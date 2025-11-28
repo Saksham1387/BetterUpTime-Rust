@@ -10,3 +10,8 @@ pub struct CreateUser {
     pub username: String,
     pub password: String,
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct GetWebsite {
+    pub id: String,
+}

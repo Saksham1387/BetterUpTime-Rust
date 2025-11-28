@@ -8,6 +8,11 @@ pub struct CreateWebsiteOuput {
 #[derive(Serialize, Deserialize)]
 pub struct CreateUserOuput {
     pub id: String,
-    pub username: String,
-    pub password: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct GetWebsiteOuput {
+    pub id: String,
+    pub url: String,
+    pub user_id: String,
 }

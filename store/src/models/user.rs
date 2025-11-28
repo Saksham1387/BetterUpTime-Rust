@@ -29,7 +29,7 @@ impl Store {
             .returning(User::as_returning())
             .get_result(&mut self.conn)?;
 
-        Ok(generated_id.to_string());
+        Ok(generated_id.to_string())
     }
     pub fn signin(
         &mut self,
@@ -47,6 +47,6 @@ impl Store {
             return Ok(false);
         }
 
-        return Ok(true);
+        Ok(true)
     }
 }

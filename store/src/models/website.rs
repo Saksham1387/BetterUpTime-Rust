@@ -14,7 +14,7 @@ pub struct Website {
 }
 
 impl Store {
-    pub fn create_wbsite(
+    pub fn create_website(
         &mut self,
         user_id: String,
         url: String,
