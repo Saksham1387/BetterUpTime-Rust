@@ -1,25 +1,70 @@
 use std::sync::{Arc, Mutex};
 
 use poem::{
-    handler,
+    Error, handler,
+    http::StatusCode,
     web::{Data, Json},
 };
 
-use crate::{request_inputs::CreateUser, request_outputs::CreateUserOuput};
+use crate::{
+    request_inputs::{CreateUser, SigninInput},
+    request_outputs::{CreateUserOuput, SigninOutput},
+};
+use jsonwebtoken::{EncodingKey, Header, encode};
+use serde::{Deserialize, Serialize};
 use store::store::Store;
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Claims {
+    pub sub: String,
+    exp: usize,
+}
 
 #[handler]
 pub fn create_user(
     Json(data): Json<CreateUser>,
     Data(s): Data<&Arc<Mutex<Store>>>,
-) -> Json<CreateUserOuput> {
+) -> Result<Json<CreateUserOuput>, Error> {
     let mut locked_s = s.lock().unwrap();
 
     let pass = data.password;
     let username = data.username;
-    let db_result = locked_s.signup(pass, username).unwrap();
+    let db_result = locked_s
+        .signup(pass, username)
+        .map_err(|_| Error::from_status(StatusCode::CONFLICT))?;
 
     let response = CreateUserOuput { id: db_result };
 
-    Json(response)
+    Ok(Json(response))
+}
+
+#[handler]
+pub fn signin(
+    Json(data): Json<SigninInput>,
+    Data(s): Data<&Arc<Mutex<Store>>>,
+) -> Result<Json<SigninOutput>, Error> {
+    let mut locked_s = s.lock().unwrap();
+    let pass = data.password;
+    let username = data.username;
+
+    let db_result = locked_s.signin(pass, username);
+
+    match db_result {
+        Ok(user_id) => {
+            let my_claims = Claims {
+                sub: user_id,
+                exp: 321423432,
+            };
+            let token = encode(
+                &Header::default(),
+                &my_claims,
+                &EncodingKey::from_secret("secret".as_ref()),
+            )
+            .map_err(|_| Error::from_status(StatusCode::UNAUTHORIZED))?;
+
+            let response = SigninOutput { jwt: token };
+            Ok(Json(response))
+        }
+        Err(_) => Err(Error::from_status(StatusCode::UNAUTHORIZED)),
+    }
 }

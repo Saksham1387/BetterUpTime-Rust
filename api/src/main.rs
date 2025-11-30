@@ -5,10 +5,11 @@ use poem::{EndpointExt, Route, Server, get, listener::TcpListener, post};
 use store::store::Store;
 
 use crate::routes::{
-    user::create_user,
+    user::{create_user, signin},
     website::{create_website, get_website},
 };
 
+pub mod auth_middleware;
 pub mod request_inputs;
 pub mod request_outputs;
 pub mod routes;
@@ -21,6 +22,7 @@ async fn main() -> Result<(), std::io::Error> {
         .at("/website/:website_id", get(get_website))
         .at("/website", post(create_website))
         .at("/signup", post(create_user))
+        .at("/signin", post(signin))
         .data(s);
 
     Server::new(TcpListener::bind("0.0.0.0:3000"))

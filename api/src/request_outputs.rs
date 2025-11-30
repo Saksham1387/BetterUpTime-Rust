@@ -16,3 +16,8 @@ pub struct GetWebsiteOuput {
     pub url: String,
     pub user_id: String,
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct SigninOutput {
+    pub jwt: String,
+}
