@@ -9,7 +9,7 @@ pub struct Website {
     pub id:String
 }
 
-fn do_something() -> redis::RedisResult<()> {
+fn publish() -> redis::RedisResult<()> {
     let mut s = Store::new().unwrap();
 
     let all_websites = s.get_all_website().unwrap();
@@ -37,7 +37,7 @@ fn do_something() -> redis::RedisResult<()> {
 
 fn main() {
     loop {
-        let _ = do_something();
+        let _ = publish();
 
         // Sleeps the current thread for 3 minutes (180 seconds)
         // But all the websites in the DB in the queue after every 3 minutes
