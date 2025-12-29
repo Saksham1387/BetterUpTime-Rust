@@ -3,14 +3,15 @@ use chrono::Utc;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-#[derive(Queryable, Selectable, Insertable)]
+#[derive(Queryable, Selectable, Insertable,QueryableByName)]
 #[diesel(table_name = crate::schema::website)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
+#[derive(Debug)]
 pub struct Website {
     pub id: String,
     pub url: String,
-    pub user_id: String,
     pub time_added: chrono::NaiveDateTime,
+    pub user_id: String,
 }
 
 impl Store {
@@ -45,5 +46,14 @@ impl Store {
             .first(&mut self.conn)?;
 
         Ok(website_result)
+    }
+
+    pub fn get_all_website(&mut self) -> Result<Vec<Website>, diesel::result::Error> {
+        use diesel::prelude::*;
+        use crate::schema::website;
+
+        let websites_result = website::table.load::<Website>(&mut self.conn)?;
+
+        Ok(websites_result)
     }
 }

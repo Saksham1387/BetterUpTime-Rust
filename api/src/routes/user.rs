@@ -1,4 +1,5 @@
-use std::sync::{Arc, Mutex};
+use std::{sync::{Arc, Mutex}};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use poem::{
     Error, handler,
@@ -51,9 +52,14 @@ pub fn signin(
 
     match db_result {
         Ok(user_id) => {
+            let expiration = SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_secs() + (24 * 60 * 60);
+
             let my_claims = Claims {
                 sub: user_id,
-                exp: 321423432,
+                exp: expiration as usize,
             };
             let token = encode(
                 &Header::default(),

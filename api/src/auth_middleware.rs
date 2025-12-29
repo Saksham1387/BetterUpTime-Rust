@@ -19,7 +19,7 @@ impl<'a> FromRequest<'a> for UserId {
             &DecodingKey::from_secret("secret".as_ref()),
             &Validation::default(),
         )
-        .map_err(|e| Error::from_string("Token not found", StatusCode::UNAUTHORIZED))?;
+        .map_err(|e| Error::from_string(e.to_string(), StatusCode::UNAUTHORIZED))?;
 
         Ok(UserId(token_data.claims.sub))
     }
